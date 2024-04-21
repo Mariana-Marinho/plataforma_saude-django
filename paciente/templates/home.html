@@ -71,7 +71,14 @@
             <p style="font-size: 25px" class="p-bold">Lembretes</p>
 
             <p class="bg-main-lembrete">
-                <span class="p-bold"><i class="bi bi-exclamation-triangle-fill icon-differential"></i>&nbsp&nbsp Consulta com Pedro Sampario em 7 dias.</span>
+                <span class="p-bold"><i class="bi bi-exclamation-triangle-fill icon-differential"></i>
+                    &nbsp&nbsp
+                    <br>
+                    {% for consulta in minhas_consultas  %}
+                        &nbsp&nbspConsulta com {{consulta.data_aberta.user}} em {{consulta.contagem_regressiva}} dias.
+                        <br>
+                    {% endfor %}
+                </span>
             </p>
 
 

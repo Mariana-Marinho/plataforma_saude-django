@@ -21,8 +21,14 @@ def home(request):
 
         if especialidades_filtrar:
             medicos = medicos.filter(especialidade_id__in=especialidades_filtrar)
-
-        return render(request, 'home.html', {'medicos': medicos, 'especialidades': especialidades})
+        
+        minhas_consultas = Consulta.objects.filter(paciente=request.user).filter(data_aberta__data__gte=datetime.now())
+        
+        for consulta in minhas_consultas:
+            diferenca_dias = (consulta.data_aberta.data.date() - datetime.now().date()).days
+            consulta.contagem_regressiva = diferenca_dias
+    
+        return render(request, 'home.html', {'medicos': medicos, 'especialidades': especialidades, 'minhas_consultas': minhas_consultas})
 
 def escolher_horario(request, id_dados_medicos):
     if request.method == "GET":
@@ -51,3 +57,12 @@ def agendar_horario(request, id_data_aberta):
         messages.add_message(request, constants.SUCCESS, 'Horário agendado com sucesso.')
 
         return redirect('/pacientes/minhas_consultas/')
+
+def minhas_consultas(request):
+    if request.method == "GET":
+        minhas_consultas = Consulta.objects.filter(paciente=request.user).filter(data_aberta__data__gte=datetime.now())
+        
+        #  DatasAbertas.objects.filter(user=medico.user).filter(data__gte=datetime.now()).filter(agendado=False)
+
+        return render(request, 'minhas_consultas.html', {'minhas_consultas': minhas_consultas})
+
