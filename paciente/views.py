@@ -72,3 +72,13 @@ def consulta(request, id_consulta):
         dado_medico = DadosMedico.objects.get(user=consulta.data_aberta.user)
         
         return render(request, 'consulta.html', {'consulta': consulta, 'dado_medico': dado_medico, 'is_medico': is_medico(request.user)})
+
+def consulta_area_medico(request, id_consulta):
+    if not is_medico(request.user):
+        messages.add_message(request, constants.WARNING, 'Somente médicos podem acessar essa página.')
+        return redirect('/usuarios/sair')
+    
+
+    if request.method == "GET":
+        consulta = Consulta.objects.get(id=id_consulta)
+        return render(request, 'consulta_area_medico.html', {'consulta': consulta,'is_medico': is_medico(request.user)})
