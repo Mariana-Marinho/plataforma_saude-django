@@ -86,7 +86,7 @@ def abrir_horario(request):
 def consultas_medico(request):
     if not is_medico(request.user):
         messages.add_message(request, constants.WARNING, 'Somente médicos podem acessar essa página.')
-        return redirect('/usuarios/sair')
+        return redirect('/usuarios/logout')
     
     hoje = datetime.now().date()
 
@@ -99,7 +99,7 @@ def consultas_medico(request):
 def consulta_area_medico(request, id_consulta):
     if not is_medico(request.user):
         messages.add_message(request, constants.WARNING, 'Somente médicos podem acessar essa página.')
-        return redirect('/usuarios/sair')
+        return redirect('/usuarios/logout')
     
 
     if request.method == "GET":
@@ -125,3 +125,19 @@ def consulta_area_medico(request, id_consulta):
 
         messages.add_message(request, constants.SUCCESS, 'Consulta inicializada com sucesso.')
         return redirect(f'/medicos/consulta_area_medico/{id_consulta}')
+    
+def finalizar_consulta(request, id_consulta):
+    if not is_medico(request.user):
+        messages.add_message(request, constants.WARNING, 'Somente médicos podem abrir horários.')
+        return redirect('/usuarios/logout')
+
+    consulta = Consulta.objects.get(id=id_consulta)
+
+    if request.user != consulta.data_aberta.user:
+        messages.add_message(request, constants.ERROR, 'Só o médico responsável por esta consulta pode finalizá-la.')
+        return redirect(f'/medicos/consulta_area_medico/{id_consulta}')
+
+    consulta.status = 'F'
+    consulta.save()
+
+    return redirect(f'/medicos/consulta_area_medico/{id_consulta}')
